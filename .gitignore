@@ -4,5 +4,7 @@
 __pycache__
 # emacs の自動バックアップファイル
 *~
-# ビルド時に生成されるディレクトリ.
+# インストール、ビルド時に生成されるディレクトリ.
 server/build/
+front/node_modules/
+front/out/

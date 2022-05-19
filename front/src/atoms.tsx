@@ -2,7 +2,18 @@ import { atom, selector } from 'recoil';
 
 import {URL_ROOT} from './constant';
 
-const imageDatasInitialize = selector({
+export interface Rate {
+  win: number;
+  lose: number;
+  rate: number;    
+};
+
+export interface ImageDatas {
+  [name: string]: Rate;
+};
+
+
+const imageDatasInitialize = selector<ImageDatas>({
   key: 'imageDatasInitialize',
   get: async ({get}) => {
       const url = URL_ROOT + "init_datas";
@@ -17,7 +28,7 @@ const imageDatasInitialize = selector({
 });
 
 
-export const imageDatasState = atom({
+export const imageDatasState = atom<ImageDatas>({
   key: 'imageDatasState',
   default: imageDatasInitialize,
 });
@@ -29,7 +40,7 @@ function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-function getRandomImagePathPair( imagePathList:any ){
+function getRandomImagePathPair( imagePathList:string[] ):[string,string]{
   let len:number = imagePathList.length;
   const leftId = getRandomInt(0, len-1);
   let rightId = -1;
@@ -41,7 +52,7 @@ function getRandomImagePathPair( imagePathList:any ){
   return [leftImagePath, rightImagePath];
 }
 
-export const imagePairState = selector({
+export const imagePairState = selector<[string,string]>({
   key: 'imagePairState',
   get: ({get}) => {
     const imageDatas = get(imageDatasState);

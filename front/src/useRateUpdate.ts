@@ -1,10 +1,23 @@
 import { useRecoilState } from 'recoil';
 
-import { imageDatasState } from "./atoms";
+import { imageDatasState, ImageDatas } from "./atoms";
 import { URL_ROOT } from './constant';
 
 
-function getNewImageDatas(imageDatas, win, lose){
+export interface ImageProps {
+  imageSrc: string;
+  otherSrc: string;
+  ownRate: number;
+  otherRate: number;
+};
+
+interface pathRate {
+  fname: string;
+  rate: number;
+};
+
+
+function getNewImageDatas(imageDatas: ImageDatas, win: pathRate, lose: pathRate): ImageDatas {
   let ret = {};
   for( let imagePath in imageDatas ){
     ret[imagePath] = imageDatas[imagePath];
@@ -17,7 +30,7 @@ function getNewImageDatas(imageDatas, win, lose){
 }
 
 
-export const useRateUpdate = (props) => {
+export const useRateUpdate = (props: ImageProps) => {
   const [imageDatas, setImageDatas] = useRecoilState(imageDatasState);
   const url = URL_ROOT + "rating";
   const body = {

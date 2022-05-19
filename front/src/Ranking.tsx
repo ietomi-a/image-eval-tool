@@ -1,39 +1,40 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 
-import { imageDatasState } from "./atoms";
+import { imageDatasState, ImageDatas, Rate } from "./atoms";
 import { URL_ROOT } from './constant';
 import "./Ranking.css";
 
-const RankImage = ( {imagePath, entry} ) => {
+
+const RankImage = ( {imagePath, entry}: {imagePath:string, entry: Rate} ) => {
   return (
     <div>
       <img src={URL_ROOT+imagePath} width="200" height="200" />
       <div> rate = {entry.rate}, </div>
       <div> win = {entry.win},</div>
-      <div> lose = {entry.lose}</div>       
+      <div> lose = {entry.lose}</div>
     </div>);
 };
 
-function getSortedImagePathsByRate(rates){
-  var aSIN = new Array();
-  for( let fpath in rates ){
-    aSIN.push({key:fpath, val:rates[fpath].rate});
+function getSortedImagePathsByRate(datas: ImageDatas): string[] {
+  var pathRates = new Array();
+  for( let fpath in datas ){
+    pathRates.push({key: fpath, val: datas[fpath].rate});
   }
-  aSIN.sort(
+  pathRates.sort(
     (a,b) => { return (a.val > b.val) ? -1 : 1 ; } ) ;
-  //console.log(aSIN);
-  var bTest = new Array();
-  for( let i=0; i < aSIN.length; i++ ){
-    bTest.push(aSIN[i].key);
+  var ret = new Array();
+  for( let i=0; i < pathRates.length; i++ ){
+    ret.push(pathRates[i].key);
   }
-  return bTest;
+  return ret;
 }
 
 
 export const Ranking = () => {      
   const imageDatas = useRecoilValue(imageDatasState);
-  let imagePaths = getSortedImagePathsByRate(imageDatas);
+  const imagePaths = getSortedImagePathsByRate(imageDatas);
+  // console.log(imageDatas);
   // console.log(imagePaths);
   return (<div>
             ranking

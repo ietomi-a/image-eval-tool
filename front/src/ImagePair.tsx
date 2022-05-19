@@ -2,11 +2,11 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 
 import { URL_ROOT } from './constant';
-import { useRateUpdate } from './useRateUpdate';
+import { useRateUpdate, ImageProps } from './useRateUpdate';
 import { imageDatasState, imagePairState } from "./atoms";
 
 
-const Image = (props) => {
+const Image = (props: ImageProps) => {
   const rateUpdate = useRateUpdate(props);
   return (
     <div>
