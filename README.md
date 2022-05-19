@@ -8,5 +8,5 @@
   bash serve.sh
 
 4. check
-  # check this serving on browser( ex. chrome ) by URL
-  #  localhost:8080
+  check this serving on browser( ex. chrome ) by URL localhost:8080
+    

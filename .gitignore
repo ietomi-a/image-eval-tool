@@ -1,1 +1,8 @@
+# mac のフォルダ表示用のファイル
 .DS_Store
+# python の半コンパイルファイル
+__pycache__
+# emacs の自動バックアップファイル
+*~
+# ビルド時に生成されるディレクトリ.
+server/build/
