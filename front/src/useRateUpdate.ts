@@ -9,17 +9,17 @@ export interface ImageProps {
   otherSrc: string;
   ownRate: number;
   otherRate: number;
-};
+}
 
 interface pathRate {
   fname: string;
   rate: number;
-};
+}
 
 
 function getNewImageDatas(imageDatas: ImageDatas, win: pathRate, lose: pathRate): ImageDatas {
-  let ret = {};
-  for( let imagePath in imageDatas ){
+  const ret = {};
+  for( const imagePath in imageDatas ){
     ret[imagePath] = imageDatas[imagePath];
   }
   ret[win.fname].win += 1;

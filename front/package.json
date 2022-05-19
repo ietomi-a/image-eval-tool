@@ -2,20 +2,21 @@
   "name": "my_elo-rating",
   "version": "1.0.2",
   "private": true,
-	"engines": {
+  "engines": {
     "node": ">=16.15.0",
-		"npm": ">=8.5.5"
+    "npm": ">=8.5.5"
   },
   "dependencies": {
     "@types/react": ">=17.0.34",
     "@types/react-dom": ">=17.0.11",
     "react": ">=17.0.2",
     "react-dom": ">=17.0.2",
-		"recoil": ">=0.1.0"
+    "recoil": ">=0.1.0"
   },
   "scripts": {
     "start": "serve",
     "build": "webpack",
+    "lint": "eslint . --ext ts,tsx",
     "test": "jest"
   },
   "browserslist": [
@@ -26,7 +27,11 @@
   ],
   "devDependencies": {
     "@types/jest": ">=26.0.20",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
     "css-loader": "^5.0.2",
+    "eslint": "^8.15.0",
+    "eslint-plugin-react": "^7.30.0",
     "jest": "^26.6.3",
     "serve": "^10.1.2",
     "style-loader": "^2.0.0",

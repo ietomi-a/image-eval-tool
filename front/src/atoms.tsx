@@ -6,23 +6,23 @@ export interface Rate {
   win: number;
   lose: number;
   rate: number;    
-};
+}
 
 export interface ImageDatas {
   [name: string]: Rate;
-};
+}
 
 
 const imageDatasInitialize = selector<ImageDatas>({
   key: 'imageDatasInitialize',
-  get: async ({get}) => {
+  get: async () => {
       const url = URL_ROOT + "init_datas";
       try {
-  	    const resBody = await fetch(url).then( res => res.json() );
-  	    // console.log("in useInitState,", res_body);
+        const resBody = await fetch(url).then( res => res.json() );
+        // console.log("in useInitState,", res_body);
         return resBody;
       } catch (e) {
-  	    console.error(e);
+        console.error(e);
       }
   },
 });
@@ -38,10 +38,10 @@ function getRandomInt(min: number, max: number): number {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+}
 
 function getRandomImagePathPair( imagePathList:string[] ):[string,string]{
-  let len:number = imagePathList.length;
+  const len:number = imagePathList.length;
   const leftId = getRandomInt(0, len-1);
   let rightId = -1;
   while( (rightId === leftId) || (rightId === -1) ){

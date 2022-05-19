@@ -17,13 +17,13 @@ const RankImage = ( {imagePath, entry}: {imagePath:string, entry: Rate} ) => {
 };
 
 function getSortedImagePathsByRate(datas: ImageDatas): string[] {
-  var pathRates = new Array();
-  for( let fpath in datas ){
+  const pathRates = new Array();  
+  for( const fpath in datas ){
     pathRates.push({key: fpath, val: datas[fpath].rate});
   }
   pathRates.sort(
     (a,b) => { return (a.val > b.val) ? -1 : 1 ; } ) ;
-  var ret = new Array();
+  const ret = new Array();
   for( let i=0; i < pathRates.length; i++ ){
     ret.push(pathRates[i].key);
   }
