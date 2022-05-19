@@ -19,7 +19,7 @@ def test_post_rating():
     r = requests.post(url, data=data)
     print(r)
     #print(dir(r))
-    # print(r.json())
+    print(r.json())
     assert r.json() == {'lose': {'fname': 'image/5.jpg', 'rate': 1484.0}, 'win': {'fname': 'images/3.jpg', 'rate': 1516.0}}
 
 

@@ -1,3 +1,5 @@
+0. python version must be 3.9.2
+
 1. package install
 
    bash install.sh

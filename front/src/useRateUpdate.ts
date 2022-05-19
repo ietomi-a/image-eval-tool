@@ -39,7 +39,8 @@ export const useRateUpdate = (props: ImageProps) => {
   }
   const data = {
     method: 'POST',
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
   };
   const rateUpdate = async () => {
     try {

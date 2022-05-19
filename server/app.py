@@ -1,53 +1,60 @@
-import json
 import os
 
-from flask import Flask, jsonify, send_file, render_template, request
-from flask_cors import CORS
+import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+# from starlette.middleware.cors import CORSMiddleware
+
 from util import elo_rate, get_global_init_datas
 
+app = FastAPI()
 
-app = Flask(
-    __name__,
-    template_folder="./build",  # index.html の置き場所.
-    static_folder="./build/out",  # これを設定しないと、index.html から js ファイルをロードできない. 
-)
-CORS(app)  # 独立に js を動かすときは、これが必要.
-
-
-def _generate_response(code:int, message:str):
-    """ Generate a Flask response with a json playload and HTTP code  """
-    return jsonify({'code': code, 'message': message}), code
-
-
-@app.route('/')
-def root_index():
-    return render_template("index.html")
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=['*'],
+#     allow_credentials=True,
+#     allow_methods=['*'],
+#     allow_headers=['*']
+# )
+app.mount("/build", StaticFiles(directory="build"), name="build")
+templates = Jinja2Templates(directory="build")
+app.mount("/out", StaticFiles(directory="build/out"), name="out")
 
 
-@app.route('/hello')
-def hello_test():
-    return jsonify({"my_data": "hello world"} )
+@app.get("/", response_class=HTMLResponse)
+async def root_index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request} )
 
 
-@app.route('/images/<string:request_file>', methods=['GET'])
-def image_request(request_file):
-    path = os.path.join( "images", request_file)
-    if os.path.exists(path):
-       return send_file( path )
-    return _generate_response( 404, "{} is not found".format(path) )
-
-
-@app.route('/init_datas')
+@app.get('/init_datas', response_class=JSONResponse)
 def init_datas():
-    return jsonify(get_global_init_datas())
-
-@app.route('/rating', methods=['POST'])
-def rating_request():
-    data = json.loads(request.get_data())
-    win_rate, lose_rate = elo_rate(float(data["win"]["rate"]), float(data["lose"]["rate"]))
-    return jsonify({ "win": { "fname": data["win"]["fname"], "rate": win_rate },
-                     "lose": { "fname": data["lose"]["fname"], "rate": lose_rate } }), 200
+    return get_global_init_datas()
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port="8080")
+@app.get('/images/{request_file}', response_class=FileResponse)
+async def image_request(request_file: str):
+    path = os.path.join( "images", request_file)
+    return path
+
+
+class RateData(BaseModel):
+    fname: str
+    rate: float
+
+
+class RateDataPair(BaseModel):
+    win: RateData
+    lose: RateData
+
+
+@app.post('/rating', response_class=JSONResponse)
+def rating_request(data: RateDataPair):
+    win_rate, lose_rate = elo_rate(data.win.rate, data.lose.rate)
+    return { "win": { "fname": data.win.fname, "rate": win_rate },
+             "lose": { "fname": data.lose.fname, "rate": lose_rate } }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)
