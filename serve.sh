@@ -1,1 +1,2 @@
-cd flask_server; python app.py
+SERVER_DIR=server
+cd $SERVER_DIR; python app.py
