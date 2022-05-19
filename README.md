@@ -1,16 +1,16 @@
 1. package install
 
-  bash install.sh
+   bash install.sh
 
 2. build
 
-  bash build.sh
+   bash build.sh
 
 3. run
 
-  bash serve.sh
+   bash serve.sh
 
 4. check
 
-  check this serving on browser( ex. chrome ) by URL localhost:8080
+   check this serving on browser( ex. chrome ) by URL: localhost:8080
     
