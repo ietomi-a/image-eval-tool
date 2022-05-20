@@ -8,11 +8,9 @@ import "./Ranking.css";
 
 const RankImage = ( {imagePath, entry}: {imagePath:string, entry: Rate} ) => {
   return (
-    <div>
+    <div className="rankImage">
       <img src={URL_ROOT+imagePath} width="200" height="200" />
-      <div> rate = {entry.rate}, </div>
-      <div> win = {entry.win},</div>
-      <div> lose = {entry.lose}</div>
+      <div> &nbsp;&nbsp;win = {entry.win}, lose = {entry.lose}, rate = {entry.rate.toFixed(2)} </div>
     </div>);
 };
 
@@ -36,14 +34,12 @@ export const Ranking = () => {
   const imagePaths = getSortedImagePathsByRate(imageDatas);
   // console.log(imageDatas);
   // console.log(imagePaths);
-  return (<div>
-            ranking
-            <ul className="ranking">
-              {imagePaths.map(
-                imagePath =>
-                  <RankImage imagePath={imagePath} entry={imageDatas[imagePath]} />)}
-            </ul>
-          </div>
-         );
+  return (
+    <ul className="ranking">
+      {imagePaths.map(
+        imagePath =>
+        <RankImage imagePath={imagePath} entry={imageDatas[imagePath]} />)}
+    </ul>
+  );
 };
 

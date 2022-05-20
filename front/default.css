@@ -1,0 +1,5 @@
+/* react で作る部分の外側の配置をここで設定. */
+body {
+    margin: 0px;
+    padding: 0px;
+}

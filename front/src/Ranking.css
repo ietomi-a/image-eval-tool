@@ -1,3 +1,11 @@
 .ranking {
-    display: flex; /* 横並びにするための設定. */
+    /* 横並びにするための設定. */
+    /* display: flex;  */
+    padding-top: 300px;
+    padding-left: 0px;    
+}
+.rankImage {
+    border: 1px solid;
+    border-color: black;
+    width: 280px
 }
