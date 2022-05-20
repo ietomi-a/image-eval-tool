@@ -1,14 +1,22 @@
 import os
+from collections import OrderedDict
 
-import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+import uvicorn
 # from starlette.middleware.cors import CORSMiddleware
 
-from util import elo_rate, get_global_init_datas
+
+import crud
+from database import get_db
+import models
+from schemas import RateDataPair
+from util import elo_rate
+
 
 app = FastAPI()
 
@@ -30,9 +38,14 @@ async def root_index(request: Request):
 
 
 @app.get('/init_datas', response_class=JSONResponse)
-def init_datas():
-    return get_global_init_datas()
-
+async def init_datas(db: Session = Depends(get_db)):
+    images = crud.get_images(db)
+    ret = OrderedDict()
+    for image in images:
+        fpath = "images/" + image.fname
+        ret[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
+    return ret
+        
 
 @app.get('/images/{request_file}', response_class=FileResponse)
 async def image_request(request_file: str):
@@ -40,21 +53,20 @@ async def image_request(request_file: str):
     return path
 
 
-class RateData(BaseModel):
-    fname: str
-    rate: float
+@app.post('/rating', response_model=RateDataPair)
+def rating_request(data: RateDataPair, db: Session = Depends(get_db)):
+    # print(data)
+    winner = crud.get_image(db, os.path.basename(data.win.fname))
+    loser = crud.get_image(db, os.path.basename(data.lose.fname))
+    winner_rate, loser_rate = elo_rate(winner.rate, loser.rate)
+    winner.win += 1
+    winner.rate = winner_rate
+    loser.lose += 1
+    loser.rate = loser_rate
+    db.commit()
+    return { "win": { "fname": data.win.fname, "rate": winner_rate },
+             "lose": { "fname": data.lose.fname, "rate": loser_rate } }
 
-
-class RateDataPair(BaseModel):
-    win: RateData
-    lose: RateData
-
-
-@app.post('/rating', response_class=JSONResponse)
-def rating_request(data: RateDataPair):
-    win_rate, lose_rate = elo_rate(data.win.rate, data.lose.rate)
-    return { "win": { "fname": data.win.fname, "rate": win_rate },
-             "lose": { "fname": data.lose.fname, "rate": lose_rate } }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
