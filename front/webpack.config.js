@@ -3,7 +3,9 @@ const path = require("path")
 module.exports = {
   mode: 'production',
   entry: {
-    index: path.join( __dirname, "src", "index.tsx" )
+    index: path.join( __dirname, "src", "index.tsx" ),
+    login: path.join( __dirname, "src", "login.tsx" ),
+    register: path.join( __dirname, "src", "register.tsx" )
   },
   output: {
     path: path.join(__dirname, "out"),

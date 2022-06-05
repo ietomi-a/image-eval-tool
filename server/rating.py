@@ -1,5 +1,15 @@
 from typing import Tuple, List
 
+from pydantic import BaseModel
+
+
+class RateData(BaseModel):
+    fname: str
+    rate: float
+
+class RateDataPair(BaseModel):
+    win: RateData
+    lose: RateData
 
 
 def elo_rate( win_rate:float, lose_rate:float) -> Tuple[float,float]:

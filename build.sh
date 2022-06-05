@@ -1,12 +1,8 @@
 FRONT_DIR=front
 SERVER_DIR=server
 
+cd $SERVER_DIR; python build.py; cd ..
 cd $FRONT_DIR; npm run build; cd ..
-mkdir -p $SERVER_DIR/build/
-cp $FRONT_DIR/index.html $SERVER_DIR/build/
-mkdir -p $SERVER_DIR/build/out
+mkdir -p $SERVER_DIR/build
 cp -r $FRONT_DIR/out $SERVER_DIR/build/
-cp $FRONT_DIR/tomato.ico $SERVER_DIR/build/out/
-cp $FRONT_DIR/default.css $SERVER_DIR/build/out/
-
-
+cp $FRONT_DIR/static/* $SERVER_DIR/build/
