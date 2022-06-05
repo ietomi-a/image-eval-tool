@@ -32,7 +32,9 @@ const creatSubmitHandler = (inputUserRef, inputPasswordRef, setMessage) => {
         setMessage(resBody.status);
       } else {
         setMessage("login ok");
-        window.location.href = "/";
+        // protocol の問題? 以下は location.href ではなく、window.location.href でないと、loading がうまくいかない.
+        // c.f. https://stackoverflow.com/questions/9903659/difference-between-window-location-and-location-href#:~:text=on%20this%20post.-,window.,href%20is%20shorthand%20for%20window.
+        window.location.href = "/"; 
       }
     } catch (e) {
       console.error(e);   
