@@ -103,7 +103,7 @@ def create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_active_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
@@ -125,12 +125,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     if datetime.now(tz=JST) > expire:
         raise credentials_expired_exception
+    if user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
     return user
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
     
 
     

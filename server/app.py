@@ -36,7 +36,7 @@ app.mount("/out", StaticFiles(directory="build/out"), name="out")
 async def root_index(
         request: Request,
         current_user: User = Depends(get_current_active_user)):
-    return templates.TemplateResponse("index.html", {"request": request} )
+    return templates.TemplateResponse("index.html", {"request": request, "user": current_user.username } )
 
 
 @app.get('/init_datas', response_class=JSONResponse)
@@ -54,7 +54,7 @@ async def init_datas(current_user: User = Depends(get_current_active_user) ):
 async def image_request(
         request_file: str,
         current_user: User = Depends(get_current_active_user) ):
-    path = os.path.join( "images", request_file)
+    path = os.path.join( "images", "global", request_file)
     return path
 
 
@@ -101,7 +101,7 @@ async def register( response: Response,
 
 
 @app.get("/login", response_class=HTMLResponse)
-async def login( request: Request, status:str = "normal"):
+async def login( request: Request, status: str = "normal"):
     message = ""
     if status == "need_credential":
         message = "you need login for using application"
