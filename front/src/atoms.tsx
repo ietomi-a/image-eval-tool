@@ -5,33 +5,40 @@ import {URL_ROOT} from './constant';
 export interface Rate {
   win: number;
   lose: number;
-  rate: number;    
+  rate: number;
 }
 
-export interface ImageDatas {
+export interface ImageDict {
   [name: string]: Rate;
+}
+
+
+export interface ImageDatas {
+  body: ImageDict;
+  datasetType: string;
 }
 
 
 const imageDatasInitialize = selector<ImageDatas>({
   key: 'imageDatasInitialize',
   get: async () => {
-      const url = URL_ROOT + "init_datas";
-      try {
-        const resBody = await fetch(url).then( res => res.json() );
-        // console.log("in useInitState,", res_body);
-        return resBody;
-      } catch (e) {
-        console.error(e);
-      }
+    const url = URL_ROOT + "init_datas";
+    try {
+      const resBody = await fetch(url).then( res => res.json() );
+      return resBody;
+    } catch (e) {
+      console.error(e);
+    }
   },
 });
 
 
 export const imageDatasState = atom<ImageDatas>({
   key: 'imageDatasState',
-  default: imageDatasInitialize,
+  default: imageDatasInitialize
 });
+
+
 
 
 function getRandomInt(min: number, max: number): number {
@@ -56,7 +63,8 @@ export const imagePairState = selector<[string,string]>({
   key: 'imagePairState',
   get: ({get}) => {
     const imageDatas = get(imageDatasState);
-    const imagePair = getRandomImagePathPair( Object.keys(imageDatas) );
+    const imageBody = imageDatas.body;
+    const imagePair = getRandomImagePathPair( Object.keys(imageBody) );
     return imagePair;
   },
 });

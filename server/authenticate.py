@@ -28,7 +28,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 credentials_exception = HTTPException(
     # credential error が発生したら /login に飛ぶ.    
-    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    status_code=status.HTTP_303_SEE_OTHER,
     # status_code=status.HTTP_401_UNAUTHORIZED,    
     detail="Could not validate credentials",
     headers={ "Location": "/login?status=need_credential", "WWW-Authenticate": "Bearer" },
@@ -36,7 +36,7 @@ credentials_exception = HTTPException(
 
 credentials_expired_exception = HTTPException(
     # credential error が発生したら /login に飛ぶ.    
-    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    status_code=status.HTTP_303_SEE_OTHER,
     # status_code=status.HTTP_401_UNAUTHORIZED,    
     detail="credentials expired",
     headers={ "Location": "/login?status=credential_expired",

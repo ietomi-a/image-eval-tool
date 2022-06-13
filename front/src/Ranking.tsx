@@ -1,7 +1,7 @@
 import React from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, atom } from 'recoil';
 
-import { imageDatasState, ImageDatas, Rate } from "./atoms";
+import { ImageDatas, Rate } from "./atoms";
 import { URL_ROOT } from './constant';
 import "./Ranking.css";
 
@@ -14,7 +14,7 @@ const RankImage = ( {imagePath, entry}: {imagePath:string, entry: Rate} ) => {
     </div>);
 };
 
-function getSortedImagePathsByRate(datas: ImageDatas): string[] {
+function getSortedImagePathsByRate(datas: any): string[] {
   const pathRates = new Array();  
   for( const fpath in datas ){
     pathRates.push({key: fpath, val: datas[fpath].rate});
@@ -29,17 +29,23 @@ function getSortedImagePathsByRate(datas: ImageDatas): string[] {
 }
 
 
-export const Ranking = () => {      
-  const imageDatas = useRecoilValue(imageDatasState);
-  const imagePaths = getSortedImagePathsByRate(imageDatas);
+export const Ranking: any = ( {datas} ) => {      
+  const imageDatas:ImageDatas = useRecoilValue(datas);
+  const imagePaths = getSortedImagePathsByRate(imageDatas.body);
   // console.log(imageDatas);
   // console.log(imagePaths);
-  return (
-    <ul className="ranking">
-      {imagePaths.map(
-        imagePath =>
-        <RankImage imagePath={imagePath} entry={imageDatas[imagePath]} />)}
-    </ul>
-  );
+  if( Object.keys(imageDatas.body).length > 0 ){
+    return (
+      <ul className="ranking">
+        {imagePaths.map(
+          imagePath =>
+          <RankImage imagePath={imagePath} entry={imageDatas.body[imagePath]} />)}
+      </ul>
+    );
+  } else{
+    return (
+      <ul className="ranking">  no images  </ul>
+    );
+  }
 };
 

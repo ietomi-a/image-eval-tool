@@ -3,6 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 
+DEFAULT_USER = "default"
+DEFAULT_IMAGE_SET = "default"
+
 SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 
 engine = create_engine(
@@ -15,7 +18,9 @@ Base = declarative_base()
 class Image(Base):
     __tablename__ = "images"
     
-    fname = Column(String, primary_key=True, index=True)
+    username = Column(String, default=DEFAULT_USER, primary_key=True)
+    imageset = Column(String, default=DEFAULT_IMAGE_SET, primary_key=True)
+    fname = Column(String, primary_key=True)
     win = Column(Integer, default=0)
     lose = Column(Integer, default=0)
     rate = Column(Float, default=1500)
@@ -25,7 +30,7 @@ class User(Base):
     __tablename__ = "users"
     
     username = Column(String, primary_key=True, index=True)
-    hashed_password  = Column(String)
+    hashed_password = Column(String)
     email = Column(String, default=None)
     full_name = Column(String, default=None)
     disabled = Column(Boolean, default=False)
@@ -71,16 +76,28 @@ def create_user(
     return db_user
 
 
-def get_image(db: Session, fname: str):
-    return db.query(Image).filter(Image.fname == fname).first()
+def get_image(db: Session, fname: str,
+              username:str = DEFAULT_USER, imageset:str = DEFAULT_IMAGE_SET):
+    print("in get_image, username =", username)
+    return db.query(Image).filter(
+        Image.fname == fname
+        ,Image.username == username
+        ,Image.imageset == imageset
+    ).first()
 
 
-def get_images(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Image).offset(skip).limit(limit).all()
+def get_images(db: Session,
+               username:str = DEFAULT_USER, imageset:str = DEFAULT_IMAGE_SET,
+               skip: int = 0, limit: int = 100):
+    return db.query(Image).filter(
+        Image.username == username
+        ,Image.imageset == imageset
+    ).offset(skip).limit(limit).all()
 
 
-def create_image(db: Session, fname: str):
-    db_image = Image(fname=fname)
+def create_image(db: Session, fname: str,
+                 username:str = DEFAULT_USER, imageset:str = DEFAULT_IMAGE_SET):
+    db_image = Image(fname=fname, username=username, imageset=imageset)
     db.add(db_image)
     db.commit()
     return db_image

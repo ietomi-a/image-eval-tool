@@ -1,6 +1,6 @@
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
-import { imageDatasState, ImageDatas } from "./atoms";
+import { imageDatasState, ImageDict } from "./atoms";
 import { URL_ROOT } from './constant';
 
 
@@ -17,10 +17,10 @@ interface pathRate {
 }
 
 
-function getNewImageDatas(imageDatas: ImageDatas, win: pathRate, lose: pathRate): ImageDatas {
+function getNewImageBody(imageBody: ImageDict, win: pathRate, lose: pathRate): ImageDict {
   const ret = {};
-  for( const imagePath in imageDatas ){
-    ret[imagePath] = imageDatas[imagePath];
+  for( const imagePath in imageBody ){
+    ret[imagePath] = imageBody[imagePath];
   }
   ret[win.fname].win += 1;
   ret[win.fname].rate = win.rate;
@@ -34,6 +34,7 @@ export const useRateUpdate = (props: ImageProps) => {
   const [imageDatas, setImageDatas] = useRecoilState(imageDatasState);
   const url = URL_ROOT + "rating";
   const body = {
+    datasetType: imageDatas.datasetType,
     win: { fname: props.imageSrc, rate: props.ownRate }, 
     lose: { fname: props.otherSrc, rate: props.otherRate },
   }
@@ -46,9 +47,9 @@ export const useRateUpdate = (props: ImageProps) => {
     try {
       const resBody = await fetch(url, data).then( res => res.json() );
       // console.log(resBody);
-      const newImageDatas = getNewImageDatas(imageDatas, resBody.win, resBody.lose);
+      const newImageBody = getNewImageBody(imageDatas.body, resBody.win, resBody.lose);
       // console.log(newImages);
-      setImageDatas(newImageDatas);
+      setImageDatas({body: newImageBody, datasetType: imageDatas.datasetType} );
     } catch (e) {
       console.error(e);   
     }

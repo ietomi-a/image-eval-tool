@@ -5,7 +5,8 @@ module.exports = {
   entry: {
     index: path.join( __dirname, "src", "index.tsx" ),
     login: path.join( __dirname, "src", "login.tsx" ),
-    register: path.join( __dirname, "src", "register.tsx" )
+    register: path.join( __dirname, "src", "register.tsx" ),
+    upload: path.join( __dirname, "src", "upload.tsx" )		
   },
   output: {
     path: path.join(__dirname, "out"),

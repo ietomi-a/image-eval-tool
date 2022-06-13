@@ -3,7 +3,7 @@ from datetime import timedelta
 import os
 from typing import Union
 
-from fastapi import Cookie, FastAPI, Request, Response, Depends, HTTPException, status
+from fastapi import Cookie, FastAPI, Request, Response, Depends, HTTPException, status, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
@@ -13,7 +13,8 @@ from sqlalchemy.orm import Session
 # from starlette.middleware.cors import CORSMiddleware
 
 from authenticate import ACCESS_TOKEN_EXPIRE_MINUTES, get_password_hash, authenticate_user, create_access_token, get_current_active_user, Token
-from database import get_db, get_images, get_image, get_user, User, create_user
+from database import get_db, get_images, get_image, get_user, User, create_user, create_image, DEFAULT_USER, DEFAULT_IMAGE_SET
+
 from rating import elo_rate, RateDataPair
 
 
@@ -31,6 +32,8 @@ templates = Jinja2Templates(directory="build")
 app.mount("/out", StaticFiles(directory="build/out"), name="out")
 
 
+IMAGE_DIR = "images"
+
 
 @app.get("/", response_class=HTMLResponse)
 async def root_index(
@@ -43,10 +46,11 @@ async def root_index(
 async def init_datas(current_user: User = Depends(get_current_active_user) ):
     db = next(get_db())
     images = get_images(db)
-    ret = OrderedDict()
+    datas = OrderedDict()
     for image in images:
         fpath = "images/" + image.fname
-        ret[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
+        datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
+    ret = { "body": datas, "datasetType": "default" }  
     return ret
 
 
@@ -54,7 +58,8 @@ async def init_datas(current_user: User = Depends(get_current_active_user) ):
 async def image_request(
         request_file: str,
         current_user: User = Depends(get_current_active_user) ):
-    path = os.path.join( "images", "global", request_file)
+    basename = os.path.basename(request_file)
+    path = os.path.join( IMAGE_DIR, DEFAULT_USER, DEFAULT_IMAGE_SET, basename)
     return path
 
 
@@ -62,18 +67,29 @@ async def image_request(
 async def rating_request(
         data: RateDataPair,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_active_user) ):        
-    # print(data)
-    winner = get_image(db, os.path.basename(data.win.fname))
-    loser = get_image(db, os.path.basename(data.lose.fname))
+        current_user: User = Depends(get_current_active_user) ):
+    print("data.datasetType = ", data.datasetType)
+
+    if data.datasetType == "default":
+        username = DEFAULT_USER
+    else:
+        username = current_user.username
+    print("username = ", username)
+
+    winner = get_image(db, os.path.basename(data.win.fname), username=username)
+    print(winner.username, winner.imageset, winner.fname)
+    loser = get_image(db, os.path.basename(data.lose.fname), username=username)
     winner_rate, loser_rate = elo_rate(winner.rate, loser.rate)
     winner.win += 1
     winner.rate = winner_rate
     loser.lose += 1
     loser.rate = loser_rate
     db.commit()
-    return { "win": { "fname": data.win.fname, "rate": winner_rate },
-             "lose": { "fname": data.lose.fname, "rate": loser_rate } }
+    return {
+        "datasetType": data.datasetType,
+        "win": { "fname": data.win.fname, "rate": winner_rate },
+        "lose": { "fname": data.lose.fname, "rate": loser_rate }
+    }
 
 
 
@@ -132,6 +148,61 @@ async def login_for_access_token(
         samesite="Strict"
     )
     return { "status": message }
+
+
+@app.get("/upload_page", response_class=HTMLResponse)
+async def upload_page(
+        request: Request,
+        current_user: User = Depends(get_current_active_user)):
+    # class C:
+    #     def __init__(self):
+    #         self.username= "me"
+    # current_user = C()
+    return templates.TemplateResponse(
+        "upload.html", {"request": request, "user": current_user.username } )
+
+
+@app.post("/upload", response_class=JSONResponse)
+async def upload(file: UploadFile,
+                 current_user: User = Depends(get_current_active_user) ):
+    # print(dir(file))
+    # print(type(file.filename))
+    # print(file.filename)
+    base_username = os.path.basename(current_user.username)
+    basename = os.path.basename(file.filename)
+    dirname = os.path.join(IMAGE_DIR, base_username, DEFAULT_IMAGE_SET)
+    fpath = os.path.join(dirname, basename)
+    body = await file.read()
+
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with open(fpath, "wb") as f:
+        f.write(body)
+
+    db = next(get_db())
+    create_image(db, fname=basename, username=base_username)
+    return {"status": "ok"}
+
+
+@app.get('/user_init_datas', response_class=JSONResponse)
+async def user_init_datas(current_user: User = Depends(get_current_active_user) ):
+    db = next(get_db())
+    images = get_images(db, username=current_user.username)
+    datas = OrderedDict()
+    for image in images:
+        fpath = "userimages/" + image.fname
+        datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
+    ret = { "body": datas, "datasetType": "user_data" }
+    return ret
+
+@app.get('/userimages/{request_file}', response_class=FileResponse)
+async def userimage_request(
+        request_file: str,
+        current_user: User = Depends(get_current_active_user) ):
+    basename = os.path.basename(request_file)
+    base_username = os.path.basename(current_user.username)    
+    path = os.path.join(IMAGE_DIR, base_username, DEFAULT_IMAGE_SET, basename)
+    return path
 
 
 

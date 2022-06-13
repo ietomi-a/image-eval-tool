@@ -28,16 +28,18 @@ export const ImagePair = () => {
             <table>
               <tr>
                 <td>
-                  <Image imageSrc={left}
-                         otherSrc={right}
-                         ownRate={imageDatas[left].rate}
-                         otherRate={imageDatas[right].rate} />
+                  <Image
+                    imageSrc={left}
+                    otherSrc={right}
+                    ownRate={imageDatas.body[left].rate}
+                    otherRate={imageDatas.body[right].rate} />
                 </td>
                 <td>
-                  <Image imageSrc={right}
-                         otherSrc={left}
-                         ownRate={imageDatas[right].rate}
-                         otherRate={imageDatas[left].rate} />
+                  <Image
+                    imageSrc={right}
+                    otherSrc={left}
+                    ownRate={imageDatas.body[right].rate}
+                    otherRate={imageDatas.body[left].rate} />
                 </td>
               </tr>
             </table>
