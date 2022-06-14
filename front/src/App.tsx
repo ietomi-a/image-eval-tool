@@ -12,11 +12,7 @@ import "./App.css";
 const DatasetButton = (props) => {
   const setImageDatas = useSetRecoilState(imageDatasState);  
   const toDatasetType:string = props.toDatasetType;
-  if(toDatasetType == "default"){
-    var url = URL_ROOT + "init_datas";
-  }else{
-    var url = URL_ROOT + "user_init_datas";
-  }
+  const url = URL_ROOT + "init_datas/?datasetType=" + toDatasetType;
   const changeDatasetType = async (event) => {
     event.preventDefault();
     try {    

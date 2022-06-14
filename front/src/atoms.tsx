@@ -22,7 +22,7 @@ export interface ImageDatas {
 const imageDatasInitialize = selector<ImageDatas>({
   key: 'imageDatasInitialize',
   get: async () => {
-    const url = URL_ROOT + "init_datas";
+    const url = URL_ROOT + "init_datas/?datasetType=default";
     try {
       const resBody = await fetch(url).then( res => res.json() );
       return resBody;

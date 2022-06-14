@@ -43,14 +43,20 @@ async def root_index(
 
 
 @app.get('/init_datas', response_class=JSONResponse)
-async def init_datas(current_user: User = Depends(get_current_active_user) ):
+async def init_datas(datasetType="default", current_user: User = Depends(get_current_active_user) ):
     db = next(get_db())
-    images = get_images(db)
+    if datasetType == "default":
+        images = get_images(db)
+    else:
+        images = get_images(db, username=current_user.username)
     datas = OrderedDict()
     for image in images:
-        fpath = "images/" + image.fname
+        if datasetType == "default":
+            fpath = "images/" + image.fname
+        else:
+            fpath = "userimages/" + image.fname
         datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
-    ret = { "body": datas, "datasetType": "default" }  
+    ret = { "body": datas, "datasetType": datasetType }  
     return ret
 
 
@@ -60,6 +66,16 @@ async def image_request(
         current_user: User = Depends(get_current_active_user) ):
     basename = os.path.basename(request_file)
     path = os.path.join( IMAGE_DIR, DEFAULT_USER, DEFAULT_IMAGE_SET, basename)
+    return path
+
+
+@app.get('/userimages/{request_file}', response_class=FileResponse)
+async def userimage_request(
+        request_file: str,
+        current_user: User = Depends(get_current_active_user) ):
+    basename = os.path.basename(request_file)
+    base_username = os.path.basename(current_user.username)    
+    path = os.path.join(IMAGE_DIR, base_username, DEFAULT_IMAGE_SET, basename)
     return path
 
 
@@ -184,25 +200,6 @@ async def upload(file: UploadFile,
     return {"status": "ok"}
 
 
-@app.get('/user_init_datas', response_class=JSONResponse)
-async def user_init_datas(current_user: User = Depends(get_current_active_user) ):
-    db = next(get_db())
-    images = get_images(db, username=current_user.username)
-    datas = OrderedDict()
-    for image in images:
-        fpath = "userimages/" + image.fname
-        datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
-    ret = { "body": datas, "datasetType": "user_data" }
-    return ret
-
-@app.get('/userimages/{request_file}', response_class=FileResponse)
-async def userimage_request(
-        request_file: str,
-        current_user: User = Depends(get_current_active_user) ):
-    basename = os.path.basename(request_file)
-    base_username = os.path.basename(current_user.username)    
-    path = os.path.join(IMAGE_DIR, base_username, DEFAULT_IMAGE_SET, basename)
-    return path
 
 
 
