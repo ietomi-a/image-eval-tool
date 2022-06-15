@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 # from starlette.middleware.cors import CORSMiddleware
 
 from authenticate import ACCESS_TOKEN_EXPIRE_MINUTES, get_password_hash, authenticate_user, create_access_token, get_current_active_user, Token
-from database import get_db, get_images, get_image, get_user, User, create_user, create_image, DEFAULT_USER, DEFAULT_IMAGE_SET
+from database import get_db, get_images, get_image, get_user, User, create_user, create_image, get_datasets, DEFAULT_USER, DEFAULT_IMAGE_SET
 
 from rating import elo_rate, RateDataPair
 
@@ -43,18 +43,21 @@ async def root_index(
 
 
 @app.get('/init_datas', response_class=JSONResponse)
-async def init_datas(datasetType="default", current_user: User = Depends(get_current_active_user) ):
+async def init_datas(
+        datasetType="default",
+        dataset:str = DEFAULT_IMAGE_SET,
+        current_user: User = Depends(get_current_active_user) ):
     db = next(get_db())
     if datasetType == "default":
         images = get_images(db)
     else:
-        images = get_images(db, username=current_user.username)
+        images = get_images(db, username=current_user.username, imageset=dataset)
     datas = OrderedDict()
     for image in images:
         if datasetType == "default":
             fpath = "images/" + image.fname
         else:
-            fpath = "userimages/" + image.fname
+            fpath = "userimages/" + dataset + "/" + image.fname
         datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
     ret = { "body": datas, "datasetType": datasetType }  
     return ret
@@ -69,13 +72,15 @@ async def image_request(
     return path
 
 
-@app.get('/userimages/{request_file}', response_class=FileResponse)
+@app.get('/userimages/{dataset}/{request_file}', response_class=FileResponse)
 async def userimage_request(
+        dataset: str,
         request_file: str,
         current_user: User = Depends(get_current_active_user) ):
+    base_dataset = os.path.basename(dataset)    
     basename = os.path.basename(request_file)
     base_username = os.path.basename(current_user.username)    
-    path = os.path.join(IMAGE_DIR, base_username, DEFAULT_IMAGE_SET, basename)
+    path = os.path.join(IMAGE_DIR, base_username, base_dataset, basename)
     return path
 
 
@@ -180,13 +185,16 @@ async def upload_page(
 
 @app.post("/upload", response_class=JSONResponse)
 async def upload(file: UploadFile,
+                 dataset: str = Form(...),
                  current_user: User = Depends(get_current_active_user) ):
     # print(dir(file))
     # print(type(file.filename))
     # print(file.filename)
     base_username = os.path.basename(current_user.username)
     basename = os.path.basename(file.filename)
-    dirname = os.path.join(IMAGE_DIR, base_username, DEFAULT_IMAGE_SET)
+    dataset = os.path.basename(dataset)
+    print(dataset)
+    dirname = os.path.join(IMAGE_DIR, base_username, dataset)
     fpath = os.path.join(dirname, basename)
     body = await file.read()
 
@@ -196,8 +204,15 @@ async def upload(file: UploadFile,
         f.write(body)
 
     db = next(get_db())
-    create_image(db, fname=basename, username=base_username)
+    create_image(db, fname=basename, username=base_username, imageset=dataset)
     return {"status": "ok"}
+
+
+@app.get("/user_dataset", response_class=JSONResponse)
+async def user_dataset(current_user: User = Depends(get_current_active_user)):
+    db = next(get_db())
+    datasets = get_datasets(db, username=current_user.username)
+    return datasets
 
 
 

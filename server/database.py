@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Float, Integer, String, Boolean
+from sqlalchemy import create_engine, Column, Float, Integer, String, Boolean, distinct
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -101,4 +101,11 @@ def create_image(db: Session, fname: str,
     db.add(db_image)
     db.commit()
     return db_image
+        
+
+def get_datasets(db: Session, username:str = DEFAULT_USER):
+    tmp_datasets = db.query(distinct(Image.imageset)).filter(Image.username == username).all()
+    datasets = [ dataset[0] for dataset in tmp_datasets]
+    return datasets
+
         
