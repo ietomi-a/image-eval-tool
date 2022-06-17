@@ -14,7 +14,7 @@ const RankImage = ( {imagePath, entry}: {imagePath:string, entry: Rate} ) => {
     </div>);
 };
 
-function getSortedImagePathsByRate(datas: any): string[] {
+function getSortedImagePathsByRate(datas: ImageDatas): string[] {
   const pathRates = new Array();  
   for( const fpath in datas ){
     pathRates.push({key: fpath, val: datas[fpath].rate});
@@ -31,15 +31,15 @@ function getSortedImagePathsByRate(datas: any): string[] {
 
 export const Ranking: any = ( {datas} ) => {      
   const imageDatas:ImageDatas = useRecoilValue(datas);
-  const imagePaths = getSortedImagePathsByRate(imageDatas.body);
+  const imagePaths = getSortedImagePathsByRate(imageDatas);
   // console.log(imageDatas);
   // console.log(imagePaths);
-  if( Object.keys(imageDatas.body).length > 0 ){
+  if( Object.keys(imageDatas).length > 0 ){
     return (
       <ul className="ranking">
         {imagePaths.map(
           imagePath =>
-          <RankImage imagePath={imagePath} entry={imageDatas.body[imagePath]} />)}
+          <RankImage imagePath={imagePath} entry={imageDatas[imagePath]} />)}
       </ul>
     );
   } else{

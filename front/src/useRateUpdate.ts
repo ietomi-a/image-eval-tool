@@ -1,6 +1,6 @@
 import { useRecoilState, useRecoilValue } from 'recoil';
 
-import { imageDatasState, ImageDict } from "./atoms";
+import { imageDatasState, datasetState, ImageDatas } from "./atoms";
 import { URL_ROOT } from './constant';
 
 
@@ -17,7 +17,7 @@ interface pathRate {
 }
 
 
-function getNewImageBody(imageBody: ImageDict, win: pathRate, lose: pathRate): ImageDict {
+function getNewImageBody(imageBody: ImageDatas, win: pathRate, lose: pathRate): ImageDatas {
   const ret = {};
   for( const imagePath in imageBody ){
     ret[imagePath] = imageBody[imagePath];
@@ -29,12 +29,14 @@ function getNewImageBody(imageBody: ImageDict, win: pathRate, lose: pathRate): I
   return ret;
 }
 
-
+// hook なのでコンポーネントの頭で宣言する必要がある.
 export const useRateUpdate = (props: ImageProps) => {
   const [imageDatas, setImageDatas] = useRecoilState(imageDatasState);
+  const dataset = useRecoilValue(datasetState);
   const url = URL_ROOT + "rating";
   const body = {
-    datasetType: imageDatas.datasetType,
+    datasetType: dataset.datasetType,
+    dataset: dataset.dataset,
     win: { fname: props.imageSrc, rate: props.ownRate }, 
     lose: { fname: props.otherSrc, rate: props.otherRate },
   }
@@ -47,9 +49,9 @@ export const useRateUpdate = (props: ImageProps) => {
     try {
       const resBody = await fetch(url, data).then( res => res.json() );
       // console.log(resBody);
-      const newImageBody = getNewImageBody(imageDatas.body, resBody.win, resBody.lose);
+      const newImageDatas = getNewImageBody(imageDatas, resBody.win, resBody.lose);
       // console.log(newImages);
-      setImageDatas({body: newImageBody, datasetType: imageDatas.datasetType} );
+      setImageDatas(newImageDatas);
     } catch (e) {
       console.error(e);   
     }

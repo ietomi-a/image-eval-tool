@@ -4,17 +4,26 @@ import { RecoilRoot, atom, useRecoilState, useSetRecoilState, useRecoilValue, se
 
 import {Ranking} from "./Ranking";
 import { URL_ROOT } from './constant';
-import {imageDatasState, ImageDatas} from "./atoms";
+import {imageDatasState, ImageDatas, userDatasetsState, DatasetStruct} from "./atoms";
 
-const initGetParams = new URLSearchParams({
-  datasetType: 'user_data'
-});    
+const defaultData: DatasetStruct = {
+  datasetType: "user_data", dataset:"default"
+};
+
+const currentDatasetState = atom<DatasetStruct>({
+  key: 'currentDatasetState',
+  default: defaultData
+});
 
 
 const userImageDatasInitialize = selector<ImageDatas>({
   key: 'userImageDatasInitialize',
   get: async () => {
-    const url = URL_ROOT + "init_datas/?" + initGetParams.toString();
+    const params = new URLSearchParams({
+      datasetType: defaultData.datasetType,
+      dataset: defaultData.datasetType
+    });    
+    const url = URL_ROOT + "init_datas/?" + params.toString();
     console.log(url);
     try {
       const resBody = await fetch(url).then( res => res.json() );
@@ -27,35 +36,9 @@ const userImageDatasInitialize = selector<ImageDatas>({
 
 const userImageDatasState = atom<ImageDatas>({
   key: 'userImageDatasState',
-  default: userImageDatasInitialize,
+  default: userImageDatasInitialize
 });
 
-
-
-const userDatasetsIinitalize = selector({
-  key: 'userDatasetsInitialize',
-  get: async () => {
-    const url = URL_ROOT + "user_dataset";
-    console.log(url);
-    try {
-      const resBody = await fetch(url).then( res => res.json() );
-      return resBody;
-    } catch (e) {
-      console.error(e);
-    }
-  },
-});
-
-const userDatasetsState = atom({
-  key: 'userDatasetsState',
-  default: userDatasetsIinitalize
-});
-
-
-const currentDatasetState = atom({
-  key: 'currentDatasetState',
-  default: "default"
-});
 
 
 const ChangeDatasetButton = (props) => {
@@ -63,16 +46,16 @@ const ChangeDatasetButton = (props) => {
   const setUserImageDatas = useSetRecoilState(userImageDatasState);  
   const changeDataset = async (event) => {
     event.preventDefault();
-    setCurrentDataset(props.dataset);
-    const initUploadGetParams = new URLSearchParams({
+    const params = new URLSearchParams({
       datasetType: 'user_data',
       dataset: props.dataset
     });
+    const url = URL_ROOT + "init_datas/?" + params.toString();
     try {    
-      const url = URL_ROOT + "init_datas/?" + initUploadGetParams.toString();
       const resBody = await fetch(url).then( res => res.json() );
 		  // console.log('upload body:', resBody);      
-      setUserImageDatas( resBody );      
+      setUserImageDatas( resBody );
+      setCurrentDataset( { datasetType: "user_data", dataset: props.dataset} );      
     } catch (e) {
       console.error(e);
     }
@@ -90,7 +73,7 @@ const DatasetList = (props) => {
   );
 };
 
-const DatasetForm = () => {
+export const DatasetForm = () => {
   const inputDatasetRef:any = React.createRef<HTMLInputElement>();
   const [userDatasets, setUserDatasets] = useRecoilState(userDatasetsState);
   const submitHandler = async (event) => {
@@ -105,9 +88,7 @@ const DatasetForm = () => {
       <button type="submit" className="btn btn-primary"> new dataset </button>
     </form>
   );
-  
 };
-
 
 export const UploadCore = () => {
   const userDatasets = useRecoilValue(userDatasetsState);
@@ -125,7 +106,7 @@ export const UploadCore = () => {
   const fileUpload = async () => {
     const formData: any = new FormData();
     formData.append("file", selectedFile);
-    formData.append("dataset", currentDataset);
+    formData.append("dataset", currentDataset.dataset);
     //const body:any = { file: selectedFile };
     const data = {
 			method: 'POST',
@@ -141,11 +122,11 @@ export const UploadCore = () => {
 		  const result = await fetch( URL_ROOT + 'upload', data ).then( res => res.json() );
 		  console.log('upload:', result);
       // if( result != "ok"){ return; }
-      const initUploadGetParams = new URLSearchParams({
-        datasetType: 'user_data',
-        dataset: currentDataset
+      const params = new URLSearchParams({
+        datasetType: currentDataset.datasetType,
+        dataset: currentDataset.dataset
       });    
-      const url = URL_ROOT + "init_datas/?" + initUploadGetParams.toString();
+      const url = URL_ROOT + "init_datas/?" + params.toString();
       const resBody = await fetch(url).then( res => res.json() );
 		  console.log('upload body:', resBody);
       setUserImageDatas( resBody );
@@ -157,7 +138,7 @@ export const UploadCore = () => {
 
   return (
     <div>
-      <h2> currentDataset = {currentDataset} </h2>
+      <h2> currentDataset = {currentDataset.dataset} </h2>
       <DatasetForm />
       <DatasetList datasets={userDatasets} />
       <input type="file" accept="image/jpeg" name="file" onChange={changeHandler} />

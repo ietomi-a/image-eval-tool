@@ -59,8 +59,7 @@ async def init_datas(
         else:
             fpath = "userimages/" + dataset + "/" + image.fname
         datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
-    ret = { "body": datas, "datasetType": datasetType }  
-    return ret
+    return datas
 
 
 @app.get('/images/{request_file}', response_class=FileResponse)
@@ -97,9 +96,11 @@ async def rating_request(
         username = current_user.username
     print("username = ", username)
 
-    winner = get_image(db, os.path.basename(data.win.fname), username=username)
+    winner = get_image(db, os.path.basename(data.win.fname),
+                       username=username, imageset=data.dataset)
     print(winner.username, winner.imageset, winner.fname)
-    loser = get_image(db, os.path.basename(data.lose.fname), username=username)
+    loser = get_image(db, os.path.basename(data.lose.fname),
+                      username=username, imageset=data.dataset)
     winner_rate, loser_rate = elo_rate(winner.rate, loser.rate)
     winner.win += 1
     winner.rate = winner_rate
@@ -108,6 +109,7 @@ async def rating_request(
     db.commit()
     return {
         "datasetType": data.datasetType,
+        "dataset": data.dataset,        
         "win": { "fname": data.win.fname, "rate": winner_rate },
         "lose": { "fname": data.lose.fname, "rate": loser_rate }
     }

@@ -9,6 +9,7 @@ class RateData(BaseModel):
 
 class RateDataPair(BaseModel):
     datasetType: str
+    dataset: str
     win: RateData
     lose: RateData
 

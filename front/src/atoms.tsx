@@ -8,21 +8,34 @@ export interface Rate {
   rate: number;
 }
 
-export interface ImageDict {
-  [name: string]: Rate;
-}
-
-
 export interface ImageDatas {
-  body: ImageDict;
-  datasetType: string;
+  [name: string]: Rate;  
 }
 
+export interface DatasetStruct {
+  datasetType: string;
+  dataset: string;  
+}
+
+
+const defaultData = {
+  datasetType: "default", dataset: "default"
+};
+
+export const datasetState = atom<DatasetStruct>({
+  key: 'datasetState',
+  default: defaultData
+});
 
 const imageDatasInitialize = selector<ImageDatas>({
-  key: 'imageDatasInitialize',
+  key: 'imageDatasInitialize',  
   get: async () => {
-    const url = URL_ROOT + "init_datas/?datasetType=default";
+    const params = new URLSearchParams({
+      datasetType: defaultData.datasetType,
+      dataset: defaultData.dataset
+    });
+    
+    const url = URL_ROOT + "init_datas/?" + params.toString();
     try {
       const resBody = await fetch(url).then( res => res.json() );
       return resBody;
@@ -39,6 +52,24 @@ export const imageDatasState = atom<ImageDatas>({
 });
 
 
+const userDatasetsIinitalize = selector({
+  key: 'userDatasetsInitialize',
+  get: async () => {
+    const url = URL_ROOT + "user_dataset";
+    console.log(url);
+    try {
+      const resBody = await fetch(url).then( res => res.json() );
+      return resBody;
+    } catch (e) {
+      console.error(e);
+    }
+  },
+});
+
+export const userDatasetsState = atom({
+  key: 'userDatasetsState',
+  default: userDatasetsIinitalize
+});
 
 
 function getRandomInt(min: number, max: number): number {
@@ -63,8 +94,7 @@ export const imagePairState = selector<[string,string]>({
   key: 'imagePairState',
   get: ({get}) => {
     const imageDatas = get(imageDatasState);
-    const imageBody = imageDatas.body;
-    const imagePair = getRandomImagePathPair( Object.keys(imageBody) );
+    const imagePair = getRandomImagePathPair( Object.keys(imageDatas) );
     return imagePair;
   },
 });
