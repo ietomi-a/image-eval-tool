@@ -49,36 +49,26 @@ async def init_datas(
         current_user: User = Depends(get_current_active_user) ):
     db = next(get_db())
     if datasetType == "default":
-        images = get_images(db)
+        username = DEFAULT_USER
     else:
-        images = get_images(db, username=current_user.username, imageset=dataset)
+        username = current_user.username
+    images = get_images(db, username=username, imageset=dataset)
     datas = OrderedDict()
     for image in images:
-        if datasetType == "default":
-            fpath = "images/" + image.fname
-        else:
-            fpath = "userimages/" + dataset + "/" + image.fname
+        fpath = os.path.join("userimages", username, dataset, image.fname)
         datas[fpath] = { "win": image.win, "lose": image.lose, "rate": image.rate }
     return datas
 
 
-@app.get('/images/{request_file}', response_class=FileResponse)
-async def image_request(
-        request_file: str,
-        current_user: User = Depends(get_current_active_user) ):
-    basename = os.path.basename(request_file)
-    path = os.path.join( IMAGE_DIR, DEFAULT_USER, DEFAULT_IMAGE_SET, basename)
-    return path
-
-
-@app.get('/userimages/{dataset}/{request_file}', response_class=FileResponse)
+@app.get('/userimages/{username}/{dataset}/{request_file}', response_class=FileResponse)
 async def userimage_request(
+        username: str,
         dataset: str,
         request_file: str,
         current_user: User = Depends(get_current_active_user) ):
+    base_username = os.path.basename(username)     
     base_dataset = os.path.basename(dataset)    
     basename = os.path.basename(request_file)
-    base_username = os.path.basename(current_user.username)    
     path = os.path.join(IMAGE_DIR, base_username, base_dataset, basename)
     return path
 
@@ -88,17 +78,13 @@ async def rating_request(
         data: RateDataPair,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_active_user) ):
-    print("data.datasetType = ", data.datasetType)
-
     if data.datasetType == "default":
         username = DEFAULT_USER
     else:
         username = current_user.username
-    print("username = ", username)
-
+        
     winner = get_image(db, os.path.basename(data.win.fname),
                        username=username, imageset=data.dataset)
-    print(winner.username, winner.imageset, winner.fname)
     loser = get_image(db, os.path.basename(data.lose.fname),
                       username=username, imageset=data.dataset)
     winner_rate, loser_rate = elo_rate(winner.rate, loser.rate)
@@ -189,13 +175,10 @@ async def upload_page(
 async def upload(file: UploadFile,
                  dataset: str = Form(...),
                  current_user: User = Depends(get_current_active_user) ):
-    # print(dir(file))
-    # print(type(file.filename))
-    # print(file.filename)
     base_username = os.path.basename(current_user.username)
     basename = os.path.basename(file.filename)
     dataset = os.path.basename(dataset)
-    print(dataset)
+    # print(dataset)
     dirname = os.path.join(IMAGE_DIR, base_username, dataset)
     fpath = os.path.join(dirname, basename)
     body = await file.read()
