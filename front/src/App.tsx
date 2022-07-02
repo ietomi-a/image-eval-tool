@@ -1,5 +1,6 @@
 import React, {Suspense} from 'react';
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil';
+import Cookies from "js-cookie"; 
 
 import {ImagePair} from "./ImagePair";
 import {Ranking} from "./Ranking";
@@ -70,11 +71,14 @@ const DatasetList = (props) => {
 
 
 const AppCore = () => {
+  const username = Cookies.get("username");
+  console.log("username is " + username);
   const dataset = useRecoilValue(datasetState);
   const userDatasets = useRecoilValue(userDatasetsState);
   return (
     <div className="app">
       <ImagePair />
+      <h2> my username is {username} </h2>
       <h2> dataset = {dataset.dataset} </h2>      
       <h2> datasetType = {dataset.datasetType} </h2>
       <DatasetList datasets={userDatasets} />      

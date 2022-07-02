@@ -156,6 +156,13 @@ async def login_for_access_token(
         # secure=True,
         samesite="Strict"
     )
+    response.set_cookie(
+        key="username",
+        value=f"{user.username}",
+        httponly=False, # javascript から username を使いたいので。またそこまでセキュリティー上は問題がないと判断.
+        # secure=True,
+        samesite="Strict"
+    )
     return { "status": message }
 
 
