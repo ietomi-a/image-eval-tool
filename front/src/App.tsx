@@ -70,18 +70,25 @@ const DatasetList = (props) => {
 };
 
 
-const AppCore = () => {
+const FixHeader = () => {
   const username = Cookies.get("username");
-  // console.log("username is " + username);
   const dataset = useRecoilValue(datasetState);
   const userDatasets = useRecoilValue(userDatasetsState);
   return (
-    <div className="app">
-      <ImagePair />
+    <div id="fixHeader">
       <h2> username: {username} </h2>
-      <h2> dataset: {dataset.dataset} </h2>      
-      <h2> datasetType: {dataset.datasetType} </h2>
+      <h2> dataset: {dataset.dataset}, datasetType: {dataset.datasetType} </h2>      
       <DatasetList datasets={userDatasets} />      
+      <ImagePair />
+    </div>    
+  );
+};
+
+
+const AppCore = () => {
+  return (
+    <div className="app">
+      <FixHeader />
       <Ranking datas={imageDatasState} />
     </div>
   );

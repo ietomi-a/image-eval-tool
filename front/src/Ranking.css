@@ -1,8 +1,8 @@
 .ranking {
     /* 横並びにするための設定. */
     /* display: flex;  */
-    padding-top: 300px;
-    padding-left: 0px;    
+    /* padding-top: 300px; */
+    /* padding-left: 0px;     */
 }
 .rankImage {
     border: 1px solid;
