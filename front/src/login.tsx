@@ -5,12 +5,7 @@ import { RecoilRoot, atom, useRecoilState } from 'recoil';
 import { URL_ROOT } from './constant';
 
 
-const messageState = atom<string>({
-  key: 'messageState',
-  default: "",
-});
-
-const creatSubmitHandler = (inputUserRef, inputPasswordRef, setMessage) => {
+const creatSubmitHandler = (inputUserRef, inputPasswordRef) => {
   const url = URL_ROOT + "token";
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -29,9 +24,8 @@ const creatSubmitHandler = (inputUserRef, inputPasswordRef, setMessage) => {
       };
       const resBody = await fetch(url, data).then( res => res.json() );
       if( resBody.status != "ok"){
-        setMessage(resBody.status);
+        console.log("ok");
       } else {
-        setMessage("login ok");
         // protocol の問題? 以下は location.href ではなく、window.location.href でないと、loading がうまくいかない.
         // c.f. https://stackoverflow.com/questions/9903659/difference-between-window-location-and-location-href#:~:text=on%20this%20post.-,window.,href%20is%20shorthand%20for%20window.
         window.location.href = "/"; 
@@ -45,12 +39,13 @@ const creatSubmitHandler = (inputUserRef, inputPasswordRef, setMessage) => {
 
 export const LoginCore = () => {
   const inputUserRef = React.createRef<HTMLInputElement>();
+  const queryParams = new URLSearchParams(window.location.search);
+  const status = queryParams.get("status");
   const inputPasswordRef = React.createRef<HTMLInputElement>();
-  const [message, setMessage] = useRecoilState(messageState);  
-  const submitHandler = creatSubmitHandler(inputUserRef, inputPasswordRef, setMessage);
+  const submitHandler = creatSubmitHandler(inputUserRef, inputPasswordRef);
   return (
     <div className="login">
-      <h1> {message} </h1>
+      <h1> status : {status} </h1>
       {/* <form action="/login" method="post"> */}
       <form onSubmit={submitHandler}> 
         <br/>

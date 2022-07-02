@@ -126,14 +126,9 @@ async def register( response: Response,
 
 
 @app.get("/login", response_class=HTMLResponse)
-async def login( request: Request, status: str = "normal"):
-    message = ""
-    if status == "need_credential":
-        message = "you need login for using application"
-    elif status == "credential_expired":
-        message = "your credential is expired"
+async def login( request: Request):
     return templates.TemplateResponse(
-        "login.html", {"request": request, "message": message } )
+        "login.html", {"request": request} )
 
 
 @app.post("/token")
