@@ -1,6 +1,7 @@
 import React, {Suspense, useState} from 'react';
 import ReactDOM from 'react-dom';
 import { RecoilRoot, atom, useRecoilState, useSetRecoilState, useRecoilValue, selector } from 'recoil';
+import Cookies from "js-cookie";
 
 import {Ranking} from "./Ranking";
 import { URL_ROOT } from './constant';
@@ -91,6 +92,7 @@ export const DatasetForm = () => {
 };
 
 export const UploadCore = () => {
+  const username = Cookies.get("username");  
   const userDatasets = useRecoilValue(userDatasetsState);
   const currentDataset = useRecoilValue(currentDatasetState);
   const [selectedFile, setSelectedFile] = useState<File|null>(null);
@@ -138,7 +140,8 @@ export const UploadCore = () => {
 
   return (
     <div>
-      <h2> currentDataset = {currentDataset.dataset} </h2>
+      <h2> username: {username} </h2>      
+      <h2> currentDataset: {currentDataset.dataset} </h2>
       <DatasetForm />
       <DatasetList datasets={userDatasets} />
       <input type="file" accept="image/jpeg" name="file" onChange={changeHandler} />

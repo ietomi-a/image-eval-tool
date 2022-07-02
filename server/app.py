@@ -127,8 +127,7 @@ async def register( response: Response,
 
 @app.get("/login", response_class=HTMLResponse)
 async def login( request: Request):
-    return templates.TemplateResponse(
-        "login.html", {"request": request} )
+    return templates.TemplateResponse("login.html", {"request": request} )
 
 
 @app.post("/token")
@@ -169,8 +168,7 @@ async def upload_page(
     #     def __init__(self):
     #         self.username= "me"
     # current_user = C()
-    return templates.TemplateResponse(
-        "upload.html", {"request": request, "user": current_user.username } )
+    return templates.TemplateResponse("upload.html", {"request": request})
 
 
 @app.post("/upload", response_class=JSONResponse)
