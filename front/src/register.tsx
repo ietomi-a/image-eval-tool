@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { RecoilRoot, atom, useRecoilState} from 'recoil';
 
 import { URL_ROOT } from './constant';
+import { LoginLinkHeader } from './header';
 
 
 const messageState = atom<string>({
@@ -55,6 +56,7 @@ export const RegisterCore = () => {
 
   return (
     <div className="register">
+      <LoginLinkHeader />      
       <h1> {message} </h1>
       <form onSubmit={submitHandler}> 
         <br/>

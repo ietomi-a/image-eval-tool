@@ -2,6 +2,8 @@ import React, {Suspense} from 'react';
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil';
 import Cookies from "js-cookie";
 
+
+import { AppLinkHeader } from './header';
 import {ImagePair} from "./ImagePair";
 import {Ranking} from "./Ranking";
 import {imageDatasState, datasetState, userDatasetsState} from "./atoms";
@@ -76,6 +78,7 @@ const FixHeader = () => {
   const userDatasets = useRecoilValue(userDatasetsState);
   return (
     <div id="fixHeader">
+      <AppLinkHeader />
       <h2> username: {username} </h2>
       <h2> dataset: {dataset.dataset}, datasetType: {dataset.datasetType} </h2>      
       <DatasetList datasets={userDatasets} />      
@@ -87,7 +90,7 @@ const FixHeader = () => {
 
 const AppCore = () => {
   return (
-    <div className="app">
+    <div className="app">      
       <FixHeader />
       <Ranking datas={imageDatasState} />
     </div>

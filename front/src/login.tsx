@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { RecoilRoot, atom, useRecoilState } from 'recoil';
 
 import { URL_ROOT } from './constant';
-
+import { LoginLinkHeader } from './header';
 
 const creatSubmitHandler = (inputUserRef, inputPasswordRef) => {
   const url = URL_ROOT + "token";
@@ -45,6 +45,7 @@ export const LoginCore = () => {
   const submitHandler = creatSubmitHandler(inputUserRef, inputPasswordRef);
   return (
     <div className="login">
+      <LoginLinkHeader />
       <h1> status : {status} </h1>
       {/* <form action="/login" method="post"> */}
       <form onSubmit={submitHandler}> 

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { RecoilRoot, atom, useRecoilState, useSetRecoilState, useRecoilValue, selector } from 'recoil';
 import Cookies from "js-cookie";
 
+import { AppLinkHeader } from './header';
 import {Ranking} from "./Ranking";
 import { URL_ROOT } from './constant';
 import {imageDatasState, ImageDatas, userDatasetsState, DatasetStruct} from "./atoms";
@@ -140,6 +141,7 @@ export const UploadCore = () => {
 
   return (
     <div>
+      <AppLinkHeader />      
       <h2> username: {username} </h2>      
       <h2> currentDataset: {currentDataset.dataset} </h2>
       <DatasetForm />
