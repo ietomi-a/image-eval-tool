@@ -78,7 +78,6 @@ def create_user(
 
 def get_image(db: Session, fname: str,
               username:str = DEFAULT_USER, imageset:str = DEFAULT_IMAGE_SET):
-    print("in get_image, username =", username)
     return db.query(Image).filter(
         Image.fname == fname
         ,Image.username == username
