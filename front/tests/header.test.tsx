@@ -7,7 +7,11 @@ import {LoginLinkHeader} from '../src/header';
 afterEach(() => cleanup());
 
 test('jsx test', () => {
-  const { queryByLabelText, queryByText } = render(<LoginLinkHeader />);
+  const { queryByText } = render(<LoginLinkHeader />);
   expect(queryByText("login")).toBeTruthy();
+});
+
+test('jsx test2', () => {
+  const { queryByText } = render(<LoginLinkHeader />);
   expect(queryByText("register")).toBeTruthy();  
 });
