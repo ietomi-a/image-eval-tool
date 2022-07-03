@@ -9,8 +9,6 @@ from fastapi.security.utils import get_authorization_scheme_param
 # from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
 
 from database import get_db, get_user, User
 from setting import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, JST
@@ -40,7 +38,7 @@ credentials_expired_exception = HTTPException(
 class OAuth2PasswordBearerWithCookie(OAuth2):
     def __init__(
         self,
-        tokenUrl: str,
+        tokenUrl: str = "",
         scheme_name: Optional[str] = None,
         scopes: Optional[Dict[str, str]] = None,
         auto_error: bool = True,
@@ -64,13 +62,7 @@ class OAuth2PasswordBearerWithCookie(OAuth2):
 
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-
-oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="/token")
+oauth2_scheme = OAuth2PasswordBearerWithCookie()
 
 
 def verify_password(plain_password, hashed_password):
