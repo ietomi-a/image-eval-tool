@@ -14,7 +14,7 @@ const RankImage = ( {imagePath, entry}: {imagePath:string, entry: Rate} ) => {
     </div>);
 };
 
-function getSortedImagePathsByRate(datas: ImageDatas): string[] {
+export function getSortedImagePathsByRate(datas: ImageDatas): string[] {
   const pathRates = new Array();  
   for( const fpath in datas ){
     pathRates.push({key: fpath, val: datas[fpath].rate});
