@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Dict, Optional
-from zoneinfo import ZoneInfo
+
 
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
@@ -13,14 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import get_db, get_user, User
-
-
-# to get a string like this run:
-# openssl rand -hex 32
-SECRET_KEY = "516eeda1a8a989497749d6b772583cea5b7dbc0c0a5b408085593b581c8bf1e8"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-JST = ZoneInfo('Asia/Tokyo')
+from setting import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, JST
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
