@@ -1,4 +1,5 @@
 jobs:
   build:
-   steps:
-     - run: echo "hello gha"
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello gha"
